@@ -1,19 +1,17 @@
 FROM ubuntu:18.04
 
-LABEL maintainer="justin.s.breed@gmail.com"
+LABEL maintainer="jbreed"
 
-ADD Nessus-8.5.1-ubuntu1110_amd64.deb /tmp/Nessus-8.5.1-ubuntu1110_amd64.deb
+# Add configuration folder
+ADD config /tmp/
 
 RUN apt-get update -y \
 	&& apt-get upgrade -y \
-	&& apt-get install -y apt-utils tzdata \
-	&& dpkg -i /tmp/Nessus-8.5.1-ubuntu1110_amd64.deb \
-	&& rm -r /tmp/Nessus-8.5.1-ubuntu1110_amd64.deb
+	&& apt-get install -y apt-utils tzdata 
 
+# port and volume
 EXPOSE 8834
+VOLUME ["/config"]
 
-CMD service nessusd start && tail -f /dev/null
-
-# Command to build: docker build -t jbreed/nessus .
-# Command to start: docker run -d --name nessus-8 -p 8834:8834 jbreed/nessus
-# Command to update to dockerhub: docker push jbreed/nessus:latest
+# Run installation script
+ENTRYPOINT ["/bin/bash", "/tmp/setup.sh"]
